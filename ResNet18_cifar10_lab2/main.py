@@ -26,6 +26,10 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 best_acc = 0  # best test accuracy
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
+test_metrics = []
+train_metrics = []
+num_epoch = 100
+
 # Data
 print('==> Preparing data..')
 transform_train = transforms.Compose([
@@ -102,6 +106,8 @@ def train(epoch):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+    
+    return train_loss
 
 
 def test(epoch):
@@ -139,10 +145,27 @@ def test(epoch):
         torch.save(state, './checkpoint/ckpt.pth')
 
         best_acc = acc
+    return acc
 
 if __name__ == "__main__":
 
-    for epoch in range(start_epoch, start_epoch+100):
-        train(epoch)
-        test(epoch)
+    start_plot = start_epoch
+    for epoch in range(start_epoch, start_epoch+num_epoch):
+        train_metrics.append(train(epoch))
+        test_metrics.append(test(epoch))
         #scheduler.step()
+
+    plt.plot(range(start_plot, start_plot+num_epoch), train_metrics)
+    plt.ylabel('Train metrics (Loss)')
+    plt.xlabel('Epochs')
+    plt.savefig('train-metrics.png')
+    plt.show()
+    print('Plot saved in train-metrics.png')
+
+
+    plt.plot(range(start_plot, start_plot+num_epoch), test_metrics)
+    plt.ylabel('Test metrics (Accuracy)')
+    plt.xlabel('Epochs')
+    plt.savefig('test-metrics.png')
+    plt.show()
+    print('Plot saved in test-metrics.png')
