@@ -158,7 +158,8 @@ if __name__ == "__main__":
     plt.plot(range(start_plot, start_plot+num_epoch), train_metrics)
     plt.ylabel('Train metrics (Loss)')
     plt.xlabel('Epochs')
-    plt.savefig('train-metrics.png')
+    plt.title('Train Metrics')
+    plt.savefig('/content/gdrive/MyDrive/PR2/train-metrics.png')
     plt.show()
     print('Plot saved in train-metrics.png')
 
@@ -166,6 +167,7 @@ if __name__ == "__main__":
     plt.plot(range(start_plot, start_plot+num_epoch), test_metrics)
     plt.ylabel('Test metrics (Accuracy)')
     plt.xlabel('Epochs')
-    plt.savefig('test-metrics.png')
+    plt.title('Test Metrics')
+    plt.savefig('/content/gdrive/MyDrive/PR2/test-metrics.png')
     plt.show()
     print('Plot saved in test-metrics.png')
