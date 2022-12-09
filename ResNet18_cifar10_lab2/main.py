@@ -14,6 +14,7 @@ import argparse
 from models import *
 from utils import progress_bar
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
@@ -28,7 +29,11 @@ start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
 test_metrics = []
 train_metrics = []
-num_epoch = 100
+num_epoch = 2
+step_lr = 0.02
+low_lr = round(0.1 - 2*step_lr,2)
+high_lr = round(0.1 + 2*step_lr,2)
+
 
 # Data
 print('==> Preparing data..')
@@ -148,26 +153,37 @@ def test(epoch):
     return acc
 
 if __name__ == "__main__":
+    fig1 = plt.figure(1)
+    ax1 = fig1.gca()
+    
+    fig2 = plt.figure(2)
+    ax2 = fig2.gca()
+    for learning_rate in np.arange(low_lr, high_lr, step_lr):
+        print('\n\n Learning Rate: {}'.format(learning_rate))
+        optimizer = optim.SGD(net.parameters(), lr=learning_rate,
+                          momentum=0.9, weight_decay=5e-4)
+        start_plot = start_epoch
+        train_metrics = []
+        test_metrics = []
+        for epoch in range(start_epoch, start_epoch+num_epoch):
+            train_metrics.append(train(epoch))
+            test_metrics.append(test(epoch))
+            #scheduler.step()
+        ax1.plot(range(start_plot, start_plot+num_epoch), train_metrics, label="LR {}".format(learning_rate))
+        ax2.plot(range(start_plot, start_plot+num_epoch), test_metrics, label="LR {}".format(learning_rate))
 
-    start_plot = start_epoch
-    for epoch in range(start_epoch, start_epoch+num_epoch):
-        train_metrics.append(train(epoch))
-        test_metrics.append(test(epoch))
-        #scheduler.step()
-
-    plt.plot(range(start_plot, start_plot+num_epoch), train_metrics)
-    plt.ylabel('Train metrics (Loss)')
-    plt.xlabel('Epochs')
-    plt.title('Train Metrics')
-    plt.savefig('/content/gdrive/MyDrive/PR2/train-metrics.png')
-    plt.show()
-    print('Plot saved in train-metrics.png')
-
-
-    plt.plot(range(start_plot, start_plot+num_epoch), test_metrics)
-    plt.ylabel('Test metrics (Accuracy)')
-    plt.xlabel('Epochs')
-    plt.title('Test Metrics')
-    plt.savefig('/content/gdrive/MyDrive/PR2/test-metrics.png')
-    plt.show()
-    print('Plot saved in test-metrics.png')
+    ax1.set_ylabel('Train metrics (Loss)')
+    ax1.set_xlabel('Epochs')
+    ax1.set_title('Train Metrics Different Learning Rates')
+    fig1 = ax1.figure
+    fig1.legend(loc='upper center')
+    fig1.savefig('/content/gdrive/MyDrive/PR2/train-metrics-lr.png')
+    print('Plot saved in train-metrics-lr.png')
+    
+    ax2.set_ylabel('Test metrics (Accuracy)')
+    ax2.set_xlabel('Epochs')
+    ax2.set_title('Test Metrics Different Learning Rates')
+    fig2 = ax2.figure
+    fig2.legend(loc='upper center')
+    fig2.savefig('/content/gdrive/MyDrive/PR2/test-metrics-lr.png')
+    print('Plot saved in test-metrics-lr.png')
