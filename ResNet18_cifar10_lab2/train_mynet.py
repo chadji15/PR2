@@ -146,31 +146,31 @@ if __name__ == "__main__":
     
     fig2 = plt.figure(2)
     ax2 = fig2.gca()
-    for learning_rate in np.arange(low_lr, high_lr, step_lr):
-        print('\n\n Learning Rate: {}'.format(learning_rate))
+    learning_rate = high_lr
+    print('\n\n Learning Rate: {}'.format(learning_rate))
+    
+    # Model
+    print('==> Building model..')
+    net = MyNet(10)
+    net = net.to(device)
+    
+    if device == 'cuda':
+        net = torch.nn.DataParallel(net)
+        cudnn.benchmark = True
         
-        # Model
-        print('==> Building model..')
-        net = MyNet()
-        net = net.to(device)
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate,
+                        momentum=0.9, weight_decay=5e-4)
+                        
+    start_plot = start_epoch
+    train_metrics = []
+    test_metrics = []
+    for epoch in range(start_epoch, start_epoch+num_epoch):
+        train_metrics.append(train(epoch))
+        test_metrics.append(test(epoch))
+        #scheduler.step()
         
-        if device == 'cuda':
-            net = torch.nn.DataParallel(net)
-            cudnn.benchmark = True
-            
-        optimizer = optim.SGD(net.parameters(), lr=learning_rate,
-                          momentum=0.9, weight_decay=5e-4)
-                          
-        start_plot = start_epoch
-        train_metrics = []
-        test_metrics = []
-        for epoch in range(start_epoch, start_epoch+num_epoch):
-            train_metrics.append(train(epoch))
-            test_metrics.append(test(epoch))
-            #scheduler.step()
-            
-        ax1.plot(range(start_plot, start_plot+num_epoch), train_metrics, label="LR {}".format(round(learning_rate, 2)))
-        ax2.plot(range(start_plot, start_plot+num_epoch), test_metrics, label="LR {}".format(round(learning_rate, 2)))
+    ax1.plot(range(start_plot, start_plot+num_epoch), train_metrics, label="LR {}".format(round(learning_rate, 2)))
+    ax2.plot(range(start_plot, start_plot+num_epoch), test_metrics, label="LR {}".format(round(learning_rate, 2)))
 
     
     ax1.set_ylabel('Train metrics (Loss)')
