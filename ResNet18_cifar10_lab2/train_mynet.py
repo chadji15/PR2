@@ -4,13 +4,10 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
-
 import torchvision
 import torchvision.transforms as transforms
-
 import os
 import argparse
-
 from models import *
 from utils import progress_bar
 import matplotlib.pyplot as plt
@@ -33,7 +30,6 @@ num_epoch = 60
 step_lr = 0.04
 low_lr = round(0.1 - step_lr,2)
 high_lr = round(0.1 + step_lr,2)
-
 
 # Data
 print('==> Preparing data..')
@@ -155,7 +151,7 @@ if __name__ == "__main__":
         
         # Model
         print('==> Building model..')
-        net = ResNet18()
+        net = MyNet()
         net = net.to(device)
         
         if device == 'cuda':
@@ -182,13 +178,13 @@ if __name__ == "__main__":
     ax1.set_title('Train Metrics Different Learning Rates')
     fig1 = ax1.figure
     fig1.legend(loc='upper center')
-    fig1.savefig('/content/gdrive/MyDrive/PR2/train-metrics-lr.png')
-    print('Plot saved in train-metrics-lr.png')
+    fig1.savefig('/content/gdrive/MyDrive/PR2/train-metrics-MyNet.png')
+    print('Plot saved in train-metrics-MyNet.png')
     
     ax2.set_ylabel('Test metrics (Accuracy)')
     ax2.set_xlabel('Epochs')
     ax2.set_title('Test Metrics Different Learning Rates')
     fig2 = ax2.figure
     fig2.legend(loc='upper center')
-    fig2.savefig('/content/gdrive/MyDrive/PR2/test-metrics-lr.png')
-    print('Plot saved in test-metrics-lr.png')
+    fig2.savefig('/content/gdrive/MyDrive/PR2/test-metrics-MyNet.png')
+    print('Plot saved in test-metrics-MyNet.png')
