@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true',
                     help='resume from checkpoint')
+parser.add_argument('--home',type=str, help="path to root directory")
 args = parser.parse_args()
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -26,7 +27,7 @@ start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
 test_metrics = []
 train_metrics = []
-num_epoch = 60
+num_epoch = 100
 step_lr = 0.04
 low_lr = round(0.1 - step_lr,2)
 high_lr = round(0.1 + step_lr,2)
@@ -82,11 +83,6 @@ def train(epoch):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = net(inputs)
-        # if(batch_idx in [0,60,128]):
-        #     print(outputs.shape)
-        #     plt.imshow(outputs.cpu().detach().numpy())
-        #     plt.savefig('/content/gdrive/MyDrive/PR2/featuremap-{}.png'.format(batch_idx))
-        #     plt.show()
 
         loss = criterion(outputs, targets)
         loss.backward()
@@ -100,7 +96,9 @@ def train(epoch):
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
     
-    return train_loss
+    acc = correct/total
+    
+    return train_loss, acc
 
 
 def test(epoch):
@@ -134,11 +132,10 @@ def test(epoch):
         }
         if not os.path.isdir('checkpoint'):
             os.mkdir('checkpoint')
-        #torch.save(state, './checkpoint/ckpt.pth')
         torch.save(state, './checkpoint/ckpt.pth')
 
         best_acc = acc
-    return acc
+    return test_loss, acc
 
 if __name__ == "__main__":
     fig1 = plt.figure(1)
@@ -146,7 +143,7 @@ if __name__ == "__main__":
     
     fig2 = plt.figure(2)
     ax2 = fig2.gca()
-    learning_rate = high_lr
+    learning_rate = args.lr
     print('\n\n Learning Rate: {}'.format(learning_rate))
     
     # Model
@@ -162,15 +159,23 @@ if __name__ == "__main__":
                         momentum=0.9, weight_decay=5e-4)
                         
     start_plot = start_epoch
-    train_metrics = []
-    test_metrics = []
+    train_loss = []
+    train_acc = []
+    test_acc = []
+    test_loss = []
     for epoch in range(start_epoch, start_epoch+num_epoch):
-        train_metrics.append(train(epoch))
-        test_metrics.append(test(epoch))
+        loss, acc = train(epoch)
+        train_loss.append(loss)
+        train_acc.append(acc)
+        loss, acc = test(epoch)
+        test_loss.append(loss)
+        test_acc.append(acc)
         #scheduler.step()
         
-    ax1.plot(range(start_plot, start_plot+num_epoch), train_metrics, label="LR {}".format(round(learning_rate, 2)))
-    ax2.plot(range(start_plot, start_plot+num_epoch), test_metrics, label="LR {}".format(round(learning_rate, 2)))
+    ax1.plot(range(start_plot, start_plot+num_epoch), train_loss, label="LR {}".format(round(learning_rate, 2)))
+    ax1.plot(range(start_plot, start_plot+num_epoch), test_loss, label="LR {}".format(round(learning_rate, 2)))
+    ax2.plot(range(start_plot, start_plot+num_epoch), train_acc, label="LR {}".format(round(learning_rate, 2)))
+    ax2.plot(range(start_plot, start_plot+num_epoch), test_acc, label="LR {}".format(round(learning_rate, 2)))
 
     
     ax1.set_ylabel('Train metrics (Loss)')
