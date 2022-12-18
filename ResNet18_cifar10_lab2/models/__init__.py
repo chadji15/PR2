@@ -16,3 +16,4 @@ from .resnet import *
 # from .regnet import *
 # from .dla_simple import *
 # from .dla import *
+from .mynet import *

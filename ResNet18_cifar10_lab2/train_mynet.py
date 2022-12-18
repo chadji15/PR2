@@ -96,7 +96,7 @@ def train(epoch):
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
     
-    acc = correct/total
+    acc = 100.*correct/total
     
     return train_loss, acc
 
@@ -172,24 +172,24 @@ if __name__ == "__main__":
         test_acc.append(acc)
         #scheduler.step()
         
-    ax1.plot(range(start_plot, start_plot+num_epoch), train_loss, label="LR {}".format(round(learning_rate, 2)))
-    ax1.plot(range(start_plot, start_plot+num_epoch), test_loss, label="LR {}".format(round(learning_rate, 2)))
-    ax2.plot(range(start_plot, start_plot+num_epoch), train_acc, label="LR {}".format(round(learning_rate, 2)))
-    ax2.plot(range(start_plot, start_plot+num_epoch), test_acc, label="LR {}".format(round(learning_rate, 2)))
+    ax1.plot(range(start_plot, start_plot+num_epoch), train_loss, label = 'Training')
+    ax1.plot(range(start_plot, start_plot+num_epoch), test_loss, label="Test")
+    ax2.plot(range(start_plot, start_plot+num_epoch), train_acc, label="Training")
+    ax2.plot(range(start_plot, start_plot+num_epoch), test_acc, label="Test")
 
     
-    ax1.set_ylabel('Train metrics (Loss)')
+    ax1.set_ylabel('Loss')
     ax1.set_xlabel('Epochs')
-    ax1.set_title('Train Metrics Different Learning Rates')
+    ax1.set_title('Loss training vs test')
     fig1 = ax1.figure
     fig1.legend(loc='upper center')
-    fig1.savefig('/content/gdrive/MyDrive/PR2/train-metrics-MyNet.png')
+    fig1.savefig(f'{args.home}/train-metrics-MyNet.png')
     print('Plot saved in train-metrics-MyNet.png')
     
-    ax2.set_ylabel('Test metrics (Accuracy)')
+    ax2.set_ylabel('Accuracy')
     ax2.set_xlabel('Epochs')
-    ax2.set_title('Test Metrics Different Learning Rates')
+    ax2.set_title('Accuracy training vs test')
     fig2 = ax2.figure
     fig2.legend(loc='upper center')
-    fig2.savefig('/content/gdrive/MyDrive/PR2/test-metrics-MyNet.png')
+    fig2.savefig(f'{args.home}/test-metrics-MyNet.png')
     print('Plot saved in test-metrics-MyNet.png')
